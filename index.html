@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+	body {
+		font: 10px sans-serif;
+	}
+
+    rect {
+        fill: none;
+        stroke: red;
+    }
+
+    text {
+        stroke: black;
+    }
+</style>
+<body>
+
+<script src="d3.js" charset="utf-8"></script>
+
+<script>
+    var doc = null;
+    var svg = null;
+
+    d3.xml('1992_93.pdf.xml', 'application/xml', function (d) {
+        doc = d;
+
+        var pages = doc.getElementsByTagName('page')
+        displayPage(pages[0])
+    });
+
+    function displayPage(p) {
+        var w = p.attributes['width'].value;
+        var h = p.attributes['height'].value;
+
+        if (svg != null) {
+            svg.remove();
+        }
+
+        svg = d3.select("body").append("svg")
+                .attr("width", w)
+                .attr("height", h);
+
+        var textNodes = p.getElementsByTagName('text');
+
+        var textGroups = svg.selectAll('.text')
+                .data(textNodes).enter()
+                .append('g')
+                .attr('class', 'text')
+                .attr('transform', function (d) {
+                    var x = d.attributes['left'].value;
+                    var y = d.attributes['top'].value;
+                    return 'translate(' + x + ', ' + y + ')';
+                });
+
+        var textRects = textGroups.append('rect')
+                .attr('width', function (d) { return d.attributes['width'].value; })
+                .attr('height', function (d) { return d.attributes['height'].value; });
+        var textInRects = textGroups.append('text')
+                .attr('dy', function (d) { return d.attributes['height'].value / 2; })
+                .text(function (d) { return d.childNodes[0].nodeValue });
+    }
+</script>
+
+</body>
