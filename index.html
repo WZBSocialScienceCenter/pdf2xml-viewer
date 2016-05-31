@@ -25,13 +25,28 @@
     d3.xml('1992_93.pdf.xml', 'application/xml', function (d) {
         doc = d;
 
-        var pages = doc.getElementsByTagName('page')
+        var pages = doc.getElementsByTagName('page');
         displayPage(pages[0])
     });
 
     function displayPage(p) {
         var w = p.attributes['width'].value;
         var h = p.attributes['height'].value;
+
+        var fontspecElems = p.getElementsByTagName('fontspec');
+        var fontspecs = {};
+        for (var i = 0; i < fontspecElems.length; i++) {
+            var spec = fontspecElems[i].attributes;
+            fontspecs[spec.id.value] = {
+                'size': spec.size.value,
+                'family': spec.family.value
+            }
+        }
+
+        function textStyle(textNode, prop) {
+            var spec = fontspecs[textNode.attributes['font'].value];
+            return spec[prop];
+        }
 
         if (svg != null) {
             svg.remove();
@@ -57,7 +72,9 @@
                 .attr('width', function (d) { return d.attributes['width'].value; })
                 .attr('height', function (d) { return d.attributes['height'].value; });
         var textInRects = textGroups.append('text')
-                .attr('dy', function (d) { return d.attributes['height'].value / 2; })
+                .attr('dy', function (d) { return d.attributes['height'].value / 1.4; })
+                .style('font-size', function (d) { return textStyle(d, 'size') })
+                .style('font-family', function (d) { return textStyle(d, 'family') })
                 .text(function (d) { return d.childNodes[0].nodeValue });
     }
 </script>
