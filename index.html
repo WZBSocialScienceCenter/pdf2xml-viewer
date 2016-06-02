@@ -19,10 +19,29 @@
 <script src="d3.js" charset="utf-8"></script>
 
 <script>
+    // taken from http://stackoverflow.com/a/901144
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+    
+    // NOT SECURE:
+    // might also load remote file!
+    // DO NOT use this script on a public server
+    var xmlfile = getParameterByName('xmlfile');
+    if (!xmlfile) {
+        xmlfile = '1992_93.pdf.xml'
+    }
+
     var doc = null;
     var svg = null;
 
-    d3.xml('1992_93.pdf.xml', 'application/xml', function (d) {
+    d3.xml(xmlfile, 'application/xml', function (d) {
         doc = d;
 
         var pages = doc.getElementsByTagName('page');
