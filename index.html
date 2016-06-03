@@ -39,29 +39,16 @@
 <script src="d3.js" charset="utf-8"></script>
 
 <script>
-    // THIS SCRIPT IS NOT SECURE:
-    // it might also load remote file!
-    // DO NOT use this script on a public server
-
     var xmldoc = null;
     var svg = null;
     var pageNumOffset = 0;
     var curPage = 0;
     var pages = null;
+    var fontspecs = {};  // are global for all pages
 
     function displayPage(p) {
         var w = p.attributes['width'].value;
         var h = p.attributes['height'].value;
-
-        var fontspecElems = p.getElementsByTagName('fontspec');
-        var fontspecs = {};
-        for (var i = 0; i < fontspecElems.length; i++) {
-            var spec = fontspecElems[i].attributes;
-            fontspecs[spec.id.value] = {
-                'size': spec.size.value,
-                'family': spec.family.value
-            }
-        }
 
         function textStyle(textNode, prop) {
             var spec = fontspecs[textNode.attributes['font'].value];
@@ -95,12 +82,30 @@
                 .attr('dy', function (d) { return d.attributes['height'].value / 1.4; })
                 .style('font-size', function (d) { return textStyle(d, 'size') })
                 .style('font-family', function (d) { return textStyle(d, 'family') })
-                .text(function (d) { return d.childNodes[0].nodeValue });
+                .style('font-weight', function (d) {
+                    if (d.childNodes[0].innerHTML) {
+                        return 'bold';
+                    } else {
+                        return 'normal';
+                    }
+                })
+                .text(function (d) {
+                    if (d.childNodes[0].innerHTML) {
+                        return d.childNodes[0].innerHTML;
+                    } else {
+                        return d.childNodes[0].nodeValue;
+                    }
+                });
     }
 
     function loadXMLFile() {
         var xmlFile = document.getElementById('xmlfile').value;
-        console.log("loading XML file '" + xmlFile + "'")
+
+        if (xmlFile.match(/^\W/) || xmlFile.match(/^(http|https|file):/)) {
+            return;
+        }
+
+        console.log("loading XML file '" + xmlFile + "'");
         d3.xml(xmlFile, 'application/xml', function (d) {
             xmldoc = d;
 
@@ -108,16 +113,42 @@
 
             if (pages.length <= 0) return;
 
+            loadFontSpecs(pages);
+
             pageNumOffset = parseInt(pages[0].attributes['number'].value);
+            document.getElementById('pagenum').disabled = false;
             document.getElementById('pagemax').innerHTML = pageNumOffset + pages.length - 1;
 
             setPage(0);
         });
     }
 
+    function loadFontSpecs(pages) {
+        for (var p_i = 0; p_i < pages.length; p_i++) {
+            var p = pages[p_i];
+            var fontspecElems = p.getElementsByTagName('fontspec');
+            for (var i = 0; i < fontspecElems.length; i++) {
+                var spec = fontspecElems[i].attributes;
+                fontspecs[spec.id.value] = {
+                    'size': spec.size.value,
+                    'family': spec.family.value
+                }
+            }
+
+        }
+    }
+
     function setPage(num) {
-        document.getElementById('pagenum').value = pageNumOffset + num;
-        document.getElementById('pagenum').disabled = false;
+        if (num == null) {
+            num = parseInt(document.getElementById('pagenum').value);
+
+            if (num < 0 || num >= pages.length) {
+                return;
+            }
+        } else {
+            document.getElementById('pagenum').value = pageNumOffset + num;
+        }
+
         curPage = num;
         displayPage(pages[num]);
     }
@@ -138,7 +169,7 @@
 
         <label for="pagenum">Page:</label>
         <button onclick="changePage(-1)">&larr;</button>
-        <input id="pagenum" name="pagenum" type="number" size="4" style="width: 40px" disabled> / <span id="pagemax">?</span>
+        <input id="pagenum" name="pagenum" type="number" onchange="setPage()" size="4" style="width: 40px" disabled> / <span id="pagemax">?</span>
         <button onclick="changePage(+1)">&rarr;</button>
     </fieldset>
 </div>
