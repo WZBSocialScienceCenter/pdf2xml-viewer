@@ -109,6 +109,8 @@
             if (pages.length <= 0) return;
 
             pageNumOffset = parseInt(pages[0].attributes['number'].value);
+            document.getElementById('pagemax').innerHTML = pageNumOffset + pages.length - 1;
+
             setPage(0);
         });
     }
@@ -121,7 +123,10 @@
     }
 
     function changePage(by) {
-        setPage(curPage + by);
+        var toPage = curPage + by;
+        if (toPage >= 0 && toPage < pages.length) {
+            setPage(toPage);
+        }
     }
 </script>
 
@@ -133,7 +138,7 @@
 
         <label for="pagenum">Page:</label>
         <button onclick="changePage(-1)">&larr;</button>
-        <input id="pagenum" name="pagenum" type="number" size="4" style="width: 40px" disabled>
+        <input id="pagenum" name="pagenum" type="number" size="4" style="width: 40px" disabled> / <span id="pagemax">?</span>
         <button onclick="changePage(+1)">&rarr;</button>
     </fieldset>
 </div>
