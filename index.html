@@ -3,7 +3,27 @@
 <style>
 	body {
 		font: 10px sans-serif;
+        margin: 0;
+        padding: 0;
 	}
+
+    #main {
+        width: 95vw;
+        height: 95vh;
+        border: 1px solid black;
+        overflow: scroll;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #control {
+        background: #CCCCCC;
+    }
+
+    svg {
+        margin: 0;
+        padding: 0;
+    }
 
     rect {
         fill: none;
@@ -19,34 +39,15 @@
 <script src="d3.js" charset="utf-8"></script>
 
 <script>
-    // taken from http://stackoverflow.com/a/901144
-    function getParameterByName(name, url) {
-        if (!url) url = window.location.href;
-        name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-            results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
-    }
-    
-    // NOT SECURE:
-    // might also load remote file!
+    // THIS SCRIPT IS NOT SECURE:
+    // it might also load remote file!
     // DO NOT use this script on a public server
-    var xmlfile = getParameterByName('xmlfile');
-    if (!xmlfile) {
-        xmlfile = '1992_93.pdf.xml'
-    }
 
-    var doc = null;
+    var xmldoc = null;
     var svg = null;
-
-    d3.xml(xmlfile, 'application/xml', function (d) {
-        doc = d;
-
-        var pages = doc.getElementsByTagName('page');
-        displayPage(pages[0])
-    });
+    var pageNumOffset = 0;
+    var curPage = 0;
+    var pages = null;
 
     function displayPage(p) {
         var w = p.attributes['width'].value;
@@ -71,7 +72,7 @@
             svg.remove();
         }
 
-        svg = d3.select("body").append("svg")
+        svg = d3.select("#main").append("svg")
                 .attr("width", w)
                 .attr("height", h);
 
@@ -96,6 +97,49 @@
                 .style('font-family', function (d) { return textStyle(d, 'family') })
                 .text(function (d) { return d.childNodes[0].nodeValue });
     }
+
+    function loadXMLFile() {
+        var xmlFile = document.getElementById('xmlfile').value;
+        console.log("loading XML file '" + xmlFile + "'")
+        d3.xml(xmlFile, 'application/xml', function (d) {
+            xmldoc = d;
+
+            pages = xmldoc.getElementsByTagName('page');
+
+            if (pages.length <= 0) return;
+
+            pageNumOffset = parseInt(pages[0].attributes['number'].value);
+            setPage(0);
+        });
+    }
+
+    function setPage(num) {
+        document.getElementById('pagenum').value = pageNumOffset + num;
+        document.getElementById('pagenum').disabled = false;
+        curPage = num;
+        displayPage(pages[num]);
+    }
+
+    function changePage(by) {
+        setPage(curPage + by);
+    }
 </script>
+
+<div id="control">
+    <fieldset>
+        <label for="xmlfile">XML File:</label>
+        <input id="xmlfile" name="xmlfile" type="text" required autofocus>
+        <input type="submit" value="Load" onclick="loadXMLFile()" style="margin-right: 5em">
+
+        <label for="pagenum">Page:</label>
+        <button onclick="changePage(-1)">&larr;</button>
+        <input id="pagenum" name="pagenum" type="number" size="4" style="width: 40px" disabled>
+        <button onclick="changePage(+1)">&rarr;</button>
+    </fieldset>
+</div>
+
+<div id="main">
+
+</div>
 
 </body>
