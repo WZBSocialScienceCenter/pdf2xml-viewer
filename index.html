@@ -33,6 +33,10 @@
     text {
         stroke: black;
     }
+
+    .lines {
+        stroke: blue;
+    }
 </style>
 <body>
 
@@ -158,6 +162,49 @@
         if (toPage >= 0 && toPage < pages.length) {
             setPage(toPage);
         }
+    }
+
+    function drawLines(positions, direction) {
+        var p = pages[curPage];
+        var w = parseInt(p.attributes['width'].value);
+        var h = parseInt(p.attributes['height'].value);
+
+        var coord, maxpos;
+
+        if (direction == 'x') {
+            coord = 1;
+            maxpos = w;
+        } else if (direction == 'y') {
+            coord = 0;
+            maxpos = h;
+        } else {
+            console.error('invalid direction:', direction);
+            return;
+        }
+
+        var linesGroup = svg.append("g").attr("class", "lines");
+
+        var othercoord = (coord + 1) % 2;
+
+        var line = d3.svg.line()
+                .x(function (d) { return d[0] })
+                .y(function (d) { return d[1] })
+                .interpolate("basis");
+
+        positions.forEach(function (pos) {
+            var from = [null, null];
+            var to = [null, null];
+            from[coord] = pos;
+            from[othercoord] = 0;
+            to[coord] = pos;
+            to[othercoord] = maxpos;
+
+            linesGroup.append('path').attr('d', line([from, to]))
+        });
+    }
+
+    function removeLines() {
+        d3.selectAll('.lines').remove();
     }
 </script>
 
