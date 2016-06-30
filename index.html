@@ -140,7 +140,7 @@
 
     function setPage(num) {
         if (num == null) {
-            num = parseInt(document.getElementById('pagenum').value);
+            num = parseInt(document.getElementById('pagenum').value) - 1;
 
             if (num < 0 || num >= pages.length) {
                 return;
