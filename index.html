@@ -37,6 +37,12 @@
     .lines {
         stroke: blue;
     }
+
+    .grid-cell rect {
+        fill: yellow;
+        fill-opacity: 0.33;
+        stroke: none;
+    }
 </style>
 <body>
 
@@ -49,6 +55,8 @@
     var curPage = 0;
     var pages = null;
     var fontspecs = {};  // are global for all pages
+    var pagesGrids = null;
+    var grid = null;
 
     function displayPage(p) {
         var w = p.attributes['width'].value;
@@ -102,15 +110,16 @@
                 });
     }
 
-    function loadXMLFile() {
-        var xmlFile = document.getElementById('xmlfile').value;
+    function loadXMLFile(xmlfile) {
+        xmlfile = typeof xmlfile !== 'undefined' ? xmlfile : document.getElementById('xmlfile').value;
 
-        if (xmlFile.match(/^\W/) || xmlFile.match(/^(http|https|file):/)) {
+
+        if (xmlfile.match(/^\W/) || xmlfile.match(/^(http|https|file):/)) {
             return;
         }
 
-        console.log("loading XML file '" + xmlFile + "'");
-        d3.xml(xmlFile, 'application/xml', function (d) {
+        console.log("loading XML file '" + xmlfile + "'");
+        d3.xml(xmlfile, 'application/xml', function (d) {
             xmldoc = d;
 
             pages = xmldoc.getElementsByTagName('page');
@@ -162,6 +171,41 @@
         if (toPage >= 0 && toPage < pages.length) {
             setPage(toPage);
         }
+    }
+
+    function loadGridFile(gridfile) {
+        d3.json(gridfile, function (d) {
+            pagesGrids = d;
+        });
+    }
+
+    function displayGrid() {
+        var usePage = curPage + 1;
+        if (!pagesGrids || !(usePage in pagesGrids)) {
+            console.log('pages grids not loaded or this page does not have a grid');
+            return;
+        }
+
+        grid = pagesGrids[usePage];
+
+        var gridCells = svg.selectAll('.grid-cell')
+                .data(grid).enter()
+                .append('g')
+                .attr('class', 'grid-cell')
+                .attr('transform', function (d) {
+                    var x = d[0][0];
+                    var y = d[0][1];
+                    return 'translate(' + x + ', ' + y + ')';
+                });
+        var gridRects = gridCells.selectAll('rect')
+                .data(function (d, i) { return [d]}).enter()
+                .append('rect')
+                .attr('width', function (d) { return  d[1][0] - d[0][0]; })
+                .attr('height', function (d) { return  d[1][1] - d[0][1]; });
+    }
+
+    function removeGrid() {
+        d3.selectAll('.grid-cell').remove();
     }
 
     function drawLines(positions, direction) {
