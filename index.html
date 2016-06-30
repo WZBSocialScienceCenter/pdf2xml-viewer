@@ -38,10 +38,18 @@
         stroke: blue;
     }
 
-    .grid-cell rect {
-        fill: yellow;
+    .grid-row rect {
+        stroke: brown;
         fill-opacity: 0.33;
-        stroke: none;
+        stroke-opacity: 0.25;
+        stroke-width: 1px;
+    }
+
+    .grid-row.even rect {
+        fill: #FF9933;
+    }
+    .grid-row.odd rect {
+        fill: #FFFF33;
     }
 </style>
 <body>
@@ -188,17 +196,28 @@
 
         grid = pagesGrids[usePage];
 
-        var gridCells = svg.selectAll('.grid-cell')
+        var gridRows = svg.selectAll('.grid-row')
                 .data(grid).enter()
                 .append('g')
-                .attr('class', 'grid-cell')
+                .attr('class', function (d, i) {
+                    var evenodd = i % 2 == 0 ? 'even' : 'odd';
+                    return 'grid-row ' + evenodd
+                });
+
+        var gridCells = gridRows.selectAll('.grid-cell')
+                .data(function (d) { return d}).enter()
+                .append('g')
+                .attr('class', function (d, i) {
+                    var evenodd = i % 2 == 0 ? 'even' : 'odd';
+                    return 'grid-cell ' + evenodd
+                })
                 .attr('transform', function (d) {
                     var x = d[0][0];
                     var y = d[0][1];
                     return 'translate(' + x + ', ' + y + ')';
                 });
         var gridRects = gridCells.selectAll('rect')
-                .data(function (d, i) { return [d]}).enter()
+                .data(function (d) { return [d]}).enter()
                 .append('rect')
                 .attr('width', function (d) { return  d[1][0] - d[0][0]; })
                 .attr('height', function (d) { return  d[1][1] - d[0][1]; });
