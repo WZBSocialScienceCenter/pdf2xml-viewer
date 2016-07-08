@@ -7,9 +7,10 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / [Berlin Social Science Center]
 This is a small tool with which it is possible to view and examine individual text boxes in PDF documents. This is
 very helpful for analyzing the distribution of texts across a page, especially in the case of
 [OCR-processed PDFs](https://en.wikipedia.org/wiki/Optical_character_recognition) (so called "sandwich PDFs") from
-which you might want to extract structured information. With this viewer, you can examine such PDFs and have a look
-at the properties of individual text boxes, like position, width, height or font specification. With its advanced
-features you can also overlay lines or cells.
+which you might want to extract structured information (see 
+[pdftabextract](https://github.com/WZBSocialScienceCenter/pdftabextract) for this). With this viewer, you can examine
+such PDFs and have a look at the properties of individual text boxes, like position, width, height or font
+specification. With its advanced features you can also overlay lines or cells.
 
 The viewer requires you to convert your PDFs to the [pdf2xml format](http://www.mobipocket.com/dev/pdf2xml/). Afterwards
 you can start up a local webserver, display this XML file in the viewer (as seen below) and examine the individual
@@ -64,6 +65,11 @@ browser's inspection tools (right click on element and select "Inspect" in Chrom
 ### 3. Use the advanced features of the viewer
 
 An explanation about the advanced features will be added later.
+
+### 4. Extract data from your PDFs
+
+If you want to extract structured data from the PDFs, you should have a look at the
+[pdftabextract](https://github.com/WZBSocialScienceCenter/pdftabextract) package.
 
 ## Technical details
 
