@@ -1,4 +1,4 @@
-# pdf2xml-viewer - a simple viewer for text boxes in PDF documents
+# pdf2xml-viewer - A simple viewer and inspection tool for text boxes in PDF documents
 
 July 2016, Markus Konrad <markus.konrad@wzb.eu> / [Berlin Social Science Center](https://www.wzb.eu/en)
 
