@@ -65,6 +65,7 @@
     var fontspecs = {};  // are global for all pages
     var pagesGrids = null;
     var grid = null;
+    var alwaysDisplayGrid = false;
 
     function displayPage(p) {
         var w = p.attributes['width'].value;
@@ -116,6 +117,10 @@
                         return d.childNodes[0].nodeValue;
                     }
                 });
+
+        if (alwaysDisplayGrid) {
+            displayGrid();
+        }
     }
 
     function loadXMLFile(xmlfile) {
