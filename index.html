@@ -113,18 +113,31 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
                 .style('font-size', function (d) { return textStyle(d, 'size') })
                 .style('font-family', function (d) { return textStyle(d, 'family') })
                 .style('font-weight', function (d) {
-                    if (d.childNodes[0].innerHTML) {
+                    if (d.childNodes.length == 1 && d.childNodes[0].innerHTML && d.childNodes[0].tagName == 'b') {
                         return 'bold';
                     } else {
                         return 'normal';
                     }
                 })
-                .text(function (d) {
-                    if (d.childNodes[0].innerHTML) {
-                        return d.childNodes[0].innerHTML;
+                .style('font-style', function (d) {
+                    if (d.childNodes.length == 1 && d.childNodes[0].innerHTML && d.childNodes[0].tagName == 'i') {
+                        return 'italic';
                     } else {
-                        return d.childNodes[0].nodeValue;
+                        return 'normal';
                     }
+                })
+                .text(function (d) {
+                    var txt = '';
+                    for (var i = 0; i < d.childNodes.length; i++) {
+                        var child = d.childNodes[i];
+                        if (child.innerHTML) {
+                            txt += ' ' + child.innerHTML;
+                        } else {
+                            txt += ' ' + child.nodeValue;
+                        }
+                    }
+                    
+                    return txt;
                 });
 
         if (alwaysDisplayGrid) {
