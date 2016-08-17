@@ -68,9 +68,10 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
 <script>
     var xmldoc = null;
     var svg = null;
-    var pageNumOffset = 0;
-    var curPage = 0;
+    var curPageIndex = 0;      // page offset 0 .. N_PAGES
+    var curPageNumber = null;  // number defined in "page" elements of XML file (does not have to start with 1!)
     var pages = null;
+    var pageNumbers = [];    // array as page index -> page number
     var fontspecs = {};  // are global for all pages
     var pagesGrids = null;
     var grid = null;
@@ -160,12 +161,15 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
             pages = xmldoc.getElementsByTagName('page');
 
             if (pages.length <= 0) return;
+            
+            for (var i = 0; i < pages.length; i++) {
+              pageNumbers[i] = parseInt(pages[i].attributes.number.value);
+            }
 
             loadFontSpecs(pages);
 
-            pageNumOffset = parseInt(pages[0].attributes['number'].value);
             document.getElementById('pagenum').disabled = false;
-            document.getElementById('pagemax').innerHTML = pageNumOffset + pages.length - 1;
+            document.getElementById('pagemax').innerHTML = pageNumbers[pageNumbers.length - 1];
 
             setPage(0);
         });
@@ -186,25 +190,27 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
         }
     }
 
-    function setPage(num) {
-        if (num == null) {
-            num = parseInt(document.getElementById('pagenum').value) - 1;
-
-            if (num < 0 || num >= pages.length) {
-                return;
-            }
-        } else {
-            document.getElementById('pagenum').value = pageNumOffset + num;
+    function setPage(index) {
+        if (index == null) {
+           index = 0;
         }
+        
+        if (index < 0 || index >= pageNumbers.length) {
+            return;
+        }
+        
+        curPageIndex = index;
+        curPageNumber = pageNumbers[curPageIndex];
+        
+        document.getElementById('pagenum').value = curPageNumber;
 
-        curPage = num;
-        displayPage(pages[num]);
+        displayPage(pages[curPageNumber]);
     }
 
     function changePage(by) {
-        var toPage = curPage + by;
-        if (toPage >= 0 && toPage < pages.length) {
-            setPage(toPage);
+        var toPageIndex = curPageIndex + by;
+        if (toPageIndex >= 0 && toPageIndex < pageNumbers.length) {
+            setPage(toPageIndex);
         }
     }
 
@@ -215,13 +221,12 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
     }
 
     function displayGrid() {
-        var usePage = curPage + 1;
-        if (!pagesGrids || !(usePage in pagesGrids)) {
+        if (!pagesGrids || !(curPageNumber in pagesGrids)) {
             console.log('pages grids not loaded or this page does not have a grid');
             return;
         }
 
-        grid = pagesGrids[usePage];
+        grid = pagesGrids[curPageNumber];
 
         var gridRows = svg.selectAll('.grid-row')
                 .data(grid).enter()
@@ -255,7 +260,7 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
     }
 
     function drawLines(positions, direction) {
-        var p = pages[curPage];
+        var p = pages[curPageNumber];
         var w = parseInt(p.attributes['width'].value);
         var h = parseInt(p.attributes['height'].value);
 
