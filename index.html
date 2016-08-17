@@ -171,7 +171,7 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
             document.getElementById('pagenum').disabled = false;
             document.getElementById('pagemax').innerHTML = pageNumbers[pageNumbers.length - 1];
 
-            setPage(0);
+            setPageIndex(0);
         });
     }
 
@@ -190,7 +190,7 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
         }
     }
 
-    function setPage(index) {
+    function setPageIndex(index) {
         if (index == null) {
            index = 0;
         }
@@ -206,11 +206,20 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
 
         displayPage(pages[curPageNumber]);
     }
+    
+    function setPageNumber() {
+        var num = parseInt(document.getElementById('pagenum').value);
+        var index = pageNumbers.indexOf(num);
+        
+        if (index >= 0) {
+            setPageIndex(index);
+        }
+    }
 
     function changePage(by) {
         var toPageIndex = curPageIndex + by;
         if (toPageIndex >= 0 && toPageIndex < pageNumbers.length) {
-            setPage(toPageIndex);
+            setPageIndex(toPageIndex);
         }
     }
 
@@ -311,7 +320,7 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
 
         <label for="pagenum">Page:</label>
         <button onclick="changePage(-1)">&larr;</button>
-        <input id="pagenum" name="pagenum" type="number" onchange="setPage()" size="4" style="width: 40px" disabled> / <span id="pagemax">?</span>
+        <input id="pagenum" name="pagenum" type="number" onchange="setPageNumber()" size="4" style="width: 40px" disabled> / <span id="pagemax">?</span>
         <button onclick="changePage(+1)">&rarr;</button>
     </fieldset>
 </div>
