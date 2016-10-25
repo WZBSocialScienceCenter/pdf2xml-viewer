@@ -226,6 +226,8 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
     function loadGridFile(gridfile) {
         d3.json(gridfile, function (d) {
             pagesGrids = d;
+            alwaysDisplayGrid = true;
+            displayGrid();
         });
     }
 
