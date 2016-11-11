@@ -258,9 +258,29 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
         }
 
         grid = pagesGrids[curPageNumber];
-
+        
+        var hasLeft = grid.hasOwnProperty('left');
+        var hasRight = grid.hasOwnProperty('right');
+        var gridCoords = new Array();
+        
+        if (hasLeft) {
+            gridCoords = gridCoords.concat(grid.left);
+        }
+        
+        if (hasRight) {
+            gridCoords = gridCoords.concat(grid.right);
+        }
+        
+        if (!hasLeft && !hasRight) {
+            gridCoords = grid;
+        }
+        
+        renderGridFromCoords(gridCoords);
+    }
+    
+    function renderGridFromCoords(coords) {
         var gridRows = svg.selectAll('.grid-row')
-                .data(grid).enter()
+                .data(coords).enter()
                 .append('g')
                 .attr('class', function (d, i) {
                     var evenodd = i % 2 == 0 ? 'even' : 'odd';
