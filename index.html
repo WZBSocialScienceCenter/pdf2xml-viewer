@@ -6,6 +6,11 @@ pdf2xml-viewer - A simple viewer and inspection tool for text boxes in PDF docum
 Uses d3.js.
 
 July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (https://www.wzb.eu/en)
+
+TODO:
+
+- slider for background image opacity
+
 -->
 
 <meta charset="utf-8">
@@ -27,7 +32,11 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
     #control {
         background: #CCCCCC;
     }
-
+    
+    #bgimage image {
+        opacity: 0.33;
+    }
+    
     svg {
         margin: 0;
         padding: 0;
@@ -87,9 +96,12 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
 
 <script>
     var xmldoc = null;
+    var xmlfileBasePath = '';
     var svg = null;
     var curPageIndex = 0;      // page offset 0 .. N_PAGES
     var curPageNumber = null;  // number defined in "page" elements of XML file (does not have to start with 1!)
+    var curBgImageScalingX = 1.0;
+    var curBgImageScalingY = 1.0;
     var pages = null;
     var pageNumbers = [];    // array as page index -> page number
     var fontspecs = {};  // are global for all pages
@@ -98,9 +110,9 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
     var alwaysDisplayGrid = false;
 
     function displayPage(p) {
-        var w = p.attributes['width'].value;
-        var h = p.attributes['height'].value;
-
+        var w = parseInt(p.attributes['width'].value);
+        var h = parseInt(p.attributes['height'].value);
+        
         function textStyle(textNode, prop) {
             var spec = fontspecs[textNode.attributes['font'].value];
             return spec[prop];
@@ -113,6 +125,34 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
         svg = d3.select("#main").append("svg")
                 .attr("width", w)
                 .attr("height", h);
+                
+        var pageImageElem = p.getElementsByTagName('image');
+        if (pageImageElem.length == 1) {
+            bgImgFile = xmlfileBasePath + '/' + pageImageElem[0].attributes['src'].value;
+            
+            svg.append('g')
+                .attr('id', 'bgimage')
+                .append('image')
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('width', w)
+                .attr('height', h)
+                .attr('xlink:href', bgImgFile);
+
+            var bgImg = new Image();
+            bgImg.src = bgImgFile;
+            
+            bgImg.onload = function() {
+                curBgImageScalingX = this.width / w;
+                curBgImageScalingY = this.height / h;
+                if (curBgImageScalingX != curBgImageScalingY) {
+                    console.warn('background image scaling different for x and y: sx =',
+                    curBgImageScalingX, ' sy =', curBgImageScalingY);
+                }
+            }
+        } else {
+            curBgImageScaling = 1.0;
+        }
 
         var textNodes = p.getElementsByTagName('text');
 
@@ -169,9 +209,15 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
     function loadXMLFile(xmlfile) {
         xmlfile = typeof xmlfile !== 'undefined' ? xmlfile : document.getElementById('xmlfile').value;
 
-
         if (xmlfile.match(/^\W/) || xmlfile.match(/^(http|https|file):/)) {
             return;
+        }
+        
+        var lastSlashIdx = xmlfile.lastIndexOf('/');
+        if (lastSlashIdx !== -1) {
+            xmlfileBasePath = xmlfile.substring(0, lastSlashIdx);
+        } else {
+            xmlfileBasePath = '';
         }
 
         console.log("loading XML file '" + xmlfile + "'");
@@ -206,7 +252,6 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
                     'family': spec.family.value
                 }
             }
-
         }
     }
 
@@ -337,19 +382,22 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
         d3.selectAll('.grid-cell').remove();
     }
 
-    function drawLines(positions, direction) {
-        var p = pages[curPageNumber];
+    function drawLines(positions, direction, coordsRelativeToBgImage) {
+        if (typeof(coordsRelativeToBgImage) === 'undefined') coordsRelativeToBgImage = false;
+        var p = pages[curPageIndex];
         var w = parseInt(p.attributes['width'].value);
         var h = parseInt(p.attributes['height'].value);
 
-        var coord, maxpos;
+        var coord, maxpos, bgImgScaling;
 
         if (direction == 'x') {
             coord = 1;
             maxpos = w;
+            bgImgScaling = curBgImageScalingX;
         } else if (direction == 'y') {
             coord = 0;
             maxpos = h;
+            bgImgScaling = curBgImageScalingY;
         } else {
             console.error('invalid direction:', direction);
             return;
@@ -365,6 +413,10 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
                 .interpolate("basis");
 
         positions.forEach(function (pos) {
+            if (coordsRelativeToBgImage) {
+                pos /= bgImgScaling;      
+            }
+        
             var from = [null, null];
             var to = [null, null];
             from[coord] = pos;
