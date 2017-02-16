@@ -1,6 +1,6 @@
 # pdf2xml-viewer - A simple viewer and inspection tool for text boxes in PDF documents
 
-July 2016, Markus Konrad <markus.konrad@wzb.eu> / [Berlin Social Science Center](https://www.wzb.eu/en)
+July 2016 / Feb. 2017, Markus Konrad <markus.konrad@wzb.eu> / [Berlin Social Science Center](https://www.wzb.eu/en)
 
 ## Introduction
 
@@ -10,13 +10,13 @@ very helpful for analyzing the distribution of texts across a page, especially i
 which you might want to extract structured information (see 
 [pdftabextract](https://github.com/WZBSocialScienceCenter/pdftabextract) for this). With this viewer, you can examine
 such PDFs and have a look at the properties of individual text boxes, like position, width, height or font
-specification. With its advanced features you can also overlay lines or cells.
+specification. In combination with pdftabextract, you can view the grids that were generated for the detected columns and rows. [This blog post](https://datascience.blog.wzb.eu/2017/02/16/data-mining-ocr-pdfs-using-pdftabextract-to-liberate-tabular-data-from-scanned-documents/) shows an example usage.
 
-The viewer requires you to convert your PDFs to the [pdf2xml format](http://www.mobipocket.com/dev/pdf2xml/). Afterwards
+The viewer requires you to convert your PDFs to the *pdf2xml* format. Afterwards
 you can start up a local webserver, display this XML file in the viewer (as seen below) and examine the individual
 text boxes with your browsers developer console.
 
-![OCR PDF example in the viewer](https://datascience.blog.wzb.eu/wp-content/uploads/10/2016/07/ocr-pdf-example-screenshot.png)
+![OCR PDF example in the viewer](https://datascience.blog.wzb.eu/wp-content/uploads/10/2017/02/pdf2xml-viewer-page.png)
 
 The created file in pdf2xml format can later also be used to extract structured information, which I explain in my
 series of blog posts about [data mining PDFs](https://datascience.blog.wzb.eu/category/pdfs/).
@@ -64,7 +64,9 @@ browser's inspection tools (right click on element and select "Inspect" in Chrom
 
 ### 3. Use the advanced features of the viewer
 
-An explanation about the advanced features will be added later.
+You can load a page grid JSON file that was generated with [pdftabextract](https://github.com/WZBSocialScienceCenter/pdftabextract) (function `common.save_page_grids`):
+
+![Generated page grid viewed in pdf2xml-viewer](https://datascience.blog.wzb.eu/wp-content/uploads/10/2017/02/pdf2xml-viewer-pagegrid.png)
 
 ### 4. Extract data from your PDFs
 
