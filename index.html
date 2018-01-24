@@ -329,6 +329,8 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
         }
         
         renderGridFromCoords(gridCoords);
+        d3.selectAll('.grid-row').style('display', 'inline');
+        d3.select('#toggle_grid_disp').property('checked', true);
     }
     
     function renderGridFromCoords(coords) {
@@ -388,6 +390,16 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
 
     function removeGrid() {
         d3.selectAll('.grid-cell').remove();
+    }
+
+    function toggleGridDisplay() {
+        if (d3.selectAll('.grid-row').empty()) return;
+
+        if (!d3.select('#toggle_grid_disp').property('checked')) {
+            d3.selectAll('.grid-row').style('display', 'none');
+        } else {
+            d3.selectAll('.grid-row').style('display', 'inline');
+        }
     }
 
     function drawLines(positions, direction, coordsRelativeToBgImage) {
@@ -456,6 +468,8 @@ July 2016, Markus Konrad <markus.konrad@wzb.eu> / Berlin Social Science Center (
           <label for="gridfile">Grid File:</label>
           <input id="gridfile" name="gridfile" type="text">
           <input type="submit" value="Load" onclick="loadGridFile()" style="margin-right: 5em">
+          <input id="toggle_grid_disp"  name="toggle_grid_disp" type="checkbox" onchange="toggleGridDisplay()">
+          <label for="toggle_grid_disp">Display grid</label>
         </div>
 
         <div style="width:33%; text-align:center; float: left">
