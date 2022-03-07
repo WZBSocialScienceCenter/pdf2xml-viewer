@@ -2,6 +2,8 @@
 
 July 2016 / Feb. 2017, Markus Konrad <markus.konrad@wzb.eu> / <post@mkonrad.net> / [Berlin Social Science Center](https://www.wzb.eu/en)
 
+**This project is currently not maintained.**
+
 ## Introduction
 
 This is a small tool with which it is possible to view and examine individual text boxes in PDF documents. This is
